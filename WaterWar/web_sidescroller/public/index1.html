@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Spike Evader</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style type="text/css">
+    #square {
+        background-color: black;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="left_button" class="move_direction" data-direction="0">
+        <p class="text">
+            Move Left!
+        </p>
+    </div>
+    <div id="right_button" class="move_direction" data-direction="1">
+        <p class="text">
+            Move Right!
+        </p>
+    </div>
+    <div id="accVal" style="font-size:30px; font-weight:bold">12223</div>
+    <!-- <center>
+        <div id="square">
+        </div>
+    </center> -->
+    <!-- Required javascript libraries. Add your own libraries here. -->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/lib/connection.js"></script>
+    <!-- Load your controller's javascript here. -->
+    <script src="/js/sprint.js"></script>
+    <script src="/js/spikeEvader_ButtonHandler.js"></script>
+    <script>
+    // Acceleration
+    var axisX = 0;
+    var axisY = 0;
+
+    var lastX = 0;
+    var lastY = 0;
+
+    var xDiv = 4,
+        yDiv = 4;
+
+    window.onload = function() {
+        if (window.DeviceMotionEvent == undefined) {
+            document.getElementById("no").style.display = "block";
+            document.getElementById("yes").style.display = "none";
+
+        } else {
+            window.ondevicemotion = function(event) {
+
+                axisX = (event.accelerationIncludingGravity.x / xDiv).toFixed(1);
+                axisX = Math.min(Math.max(axisX, -1), 1);
+
+                axisY = (event.accelerationIncludingGravity.y / yDiv).toFixed(1);
+                axisY = Math.min(Math.max(axisY, -1), 1);
+
+                $("#accVal").text('X: ' + axisX + '   Y: ' + axisY);
+
+                if (Math.abs(axisX - lastX) >= 0.1 ||
+                    Math.abs(axisY - lastY) >= 0.1) {
+                    var msg = {
+                        "type": "move_axis",
+                        "move_axis": true,
+                        "axisX":axisX,
+                        "axisY":axisY,
+                    };
+                    conn.sendMessage(msg, 0);
+                }
+
+                lastX = axisX;
+                lastY = axisY;
+            }
+        }
+    };
+    </script>
+</body>
+
+</html>
